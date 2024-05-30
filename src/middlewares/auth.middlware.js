@@ -7,9 +7,16 @@ export default async function (req,res,next) {
         const {authorization}=req.cookies;
 
         const [tokenType,token]=authorization.split(" ");
-        if (tokenType!=='Bearer') throw new Error("토큰 타입이 일치하지 않습니다");
-        
+
         const decodedToken=jwt.verify(token,'first_token');
+
+        if(tokenType==="manager") {
+            req.manager=1;
+            console.log(`${decodedToken.userid}번 계정이 관리자로 로그인 했습니다`);
+        }
+        else if (tokenType!=='Bearer') throw new Error("토큰 타입이 일치하지 않습니다");
+        
+        
         
         const userid=decodedToken['userid'];
         const user=await prisma.users.findFirst({

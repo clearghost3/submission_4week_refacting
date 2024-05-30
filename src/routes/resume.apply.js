@@ -90,7 +90,17 @@ router.put("/resume/:resumeid",authMiddlware,async(req,res,next)=>{
     return res.status(200).json({Message:"코드 검증 완료"});
 });
 
+//관리자 이력서 조회
+router.put("/resume/view",()=>{
+    const Permission=req.Permission;
+
+    return res.status(200).json({Message:"코드 검증 완료"});
+});
+
+
 //관리자 이력서 수정
-router.put("")
+router.patch("/resume/:resumeid",()=>{
+    return res.status(200).json({Message:"코드 검증 완료"});
+}) 
 
 export default router;
