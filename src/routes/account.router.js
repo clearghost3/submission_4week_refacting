@@ -23,7 +23,6 @@ router.post("/set-in", async (req, res, next) => {
       Message: "필수적인 정보를 입력해주세요!",
     });
 
-    console.log(email,password);
 
   //같은 이메일이 있는지 확인
   const isExistemail = await prisma.users.findFirst({
@@ -51,7 +50,7 @@ router.post("/set-in", async (req, res, next) => {
   const info = await prisma.userinfos.create({
     data: {
       Userid: user.userid,
-      name,
+      name:name,
       age: +age,
       gender,
       profilimage,
@@ -78,7 +77,7 @@ router.get("/log-in", async (req, res, next) => {
   if (!(await bcrypt.compare(password, user.password)))
     return res.status(400).json({ ErrorMessage: "비밀번호가 틀립니다." });
 
-  const userinfo = await prisma.userinfos.findFirst({
+  const userinfo = await prisma.userinfos.findMany({
     where: {
       Userid: user.userid,
     },
@@ -107,10 +106,16 @@ router.get("/myinfo",authMiddlware,async(req, res, next) => {
         where: {
             Userid:+userid,
         }
-    })
+    });
 
 
     return res.status(200).json({userinfo});
+});
+
+//로그아웃 router ====================
+router.get('/logout',(req,res)=>{
+  res.clearCookie('authorization');
+  return res.status(200).json({Message:"성공적으로 로그아웃 되었습니다!"});
 });
 
 export default router;

@@ -1,4 +1,4 @@
-DROP DATABASE submission_4week
+-- DROP DATABASE submission_4week
 -- DELETE from Userinfos;
 -- DELETE from Users;
 
@@ -6,3 +6,5 @@ DROP DATABASE submission_4week
 -- ALTER TABLE Userinfos AUTO_INCREMENT=1;
 
 -- SELECT * FROM Users;
+
+-- SELECT * FROM Resume;

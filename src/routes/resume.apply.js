@@ -13,8 +13,21 @@ router.post("/resume/apply",authMiddlware,async(req,res,next)=>{
 
     const userid=req.user.userid;
 
+    //이력서를 만들기 위해 회원의 필요한 정보만 불러오기
+    const userinfo=await prisma.userinfos.findFirst({
+        where: {
+            Userid:+userid
+        },
+        select: {
+            name:true,
+            age:true,
+        }
+    });
+
     const createcontent=await prisma.resume.create({
         data: {
+            name:userinfo.name,
+            age:+userinfo.age,
             Userid:+userid,
             content,
             
@@ -27,12 +40,15 @@ router.post("/resume/apply",authMiddlware,async(req,res,next)=>{
 //회원의 이력서 상세조회
 router.get("/resume/:resumeid",authMiddlware,async(req,res,next)=>{
     const resumeid=req.params.resumeid;
-    const user=req.uesr;
+    const userid=await req.user.userid;
 
     const resume=await prisma.resume.findFirst({
         where:{
-            resumeid:+resumeid
+            resumeid:+resumeid,
+            Userid:+userid
         },select: {
+            name:true,
+            age:true,
             content:true,
             createdAt:true,
             updatedAt:true,
@@ -44,8 +60,22 @@ router.get("/resume/:resumeid",authMiddlware,async(req,res,next)=>{
 });
 
 //회원의 이력서 수정
-router.patch("/resume/:resumeid",authMiddlware,(req,res,next)=>{
+router.put("/resume/:resumeid",authMiddlware,async(req,res,next)=>{
+    const resumeid=req.params.resumeid;
+    const userid=req.uesr.userid;
 
+
+
+    const resume=await prisma.resume.findFirst({
+        where:{
+            resumeid:+resumeid,
+            Userid:+userid
+        },select: {
+            content:true,
+            createdAt:true,
+            updatedAt:true,
+        }
+    })
     
     return res.status(200).json({Message:"코드 검증 완료"});
 });

@@ -59,7 +59,8 @@ model Resume {
   resumeid          Int           @id @default(autoincrement()) @map("resumeid")
 
   Userid            Int           @map("Userid")
-
+  name              String        @map("name")
+  age               Int           @map("age")
   content           String        @map("content")
   status            Resumestatus  @default(APPLY) @map("status")
   decision_reason   String?       @map("decision_reason")
