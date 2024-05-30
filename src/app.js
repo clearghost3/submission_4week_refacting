@@ -1,10 +1,13 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 
-import accountRouter from "./routes/account.router.js"
+//router
+import accountRouter from "./routes/account.router.js";
+import resumeRouter from "./routes/resume.apply.js";
 
 //middlewares
 import authMiddlware from './middlewares/auth.middlware.js';
+import logMiddleware from './middlewares/log.middleware.js';
 import errorhandlerMiddleware from './middlewares/errorhandler.middleware.js';
 
 const app=express();
@@ -15,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
 
-app.use("/api",[accountRouter]);
+app.use("/api",[accountRouter,resumeRouter]);
 
 const PORT=3019;
 

@@ -22,14 +22,17 @@ router.post("/set-in", async (req, res, next) => {
     return res.status(400).json({
       Message: "필수적인 정보를 입력해주세요!",
     });
+
+    console.log(email,password);
+
   //같은 이메일이 있는지 확인
-  const findemail = await prisma.users.findFirst({
+  const isExistemail = await prisma.users.findFirst({
     where: {
       email: email,
     },
   });
 
-  if (findemail.email === email) {
+  if (isExistemail) {
     return res.status(403).json({
       Message: "이미 존재하는 계정입니다. --계정생성 불가능",
     });
@@ -93,14 +96,21 @@ router.get("/log-in", async (req, res, next) => {
 
   return res.status(200).json({ Message: "성공적으로 로그인 되었습니다!" });
 
-  //계정 정보 조회 router ====================
+  
 });
 
-router.get("/myinfo",authMiddlware,(req, res, next) => {
+//계정 정보 조회 router ====================
+router.get("/myinfo",authMiddlware,async(req, res, next) => {
+    const userid=req.user.userid;   //authMiddlware에서 req에 전달한 userid를 사용함
+
+    const userinfo=await prisma.userinfos.findFirst({
+        where: {
+            Userid:+userid,
+        }
+    })
 
 
-
-    return res.status(200).json({Message:"코드 완료"});
+    return res.status(200).json({userinfo});
 });
 
 export default router;
