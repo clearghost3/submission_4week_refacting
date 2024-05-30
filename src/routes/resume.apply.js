@@ -62,7 +62,8 @@ router.get("/resume/:resumeid",authMiddlware,async(req,res,next)=>{
 //회원의 이력서 수정
 router.put("/resume/:resumeid",authMiddlware,async(req,res,next)=>{
     const resumeid=req.params.resumeid;
-    const userid=req.uesr.userid;
+    const userid=req.user.userid;
+    const {content}=req.body;
 
 
 
@@ -76,11 +77,20 @@ router.put("/resume/:resumeid",authMiddlware,async(req,res,next)=>{
             updatedAt:true,
         }
     })
+    const modify=await prisma.resume.update({
+        where: {
+            resumeid:+resumeid,
+            Userid:+userid
+        },
+        data: {
+            content,
+        }
+    })
     
     return res.status(200).json({Message:"코드 검증 완료"});
 });
 
 //관리자 이력서 수정
-
+router.put("")
 
 export default router;
