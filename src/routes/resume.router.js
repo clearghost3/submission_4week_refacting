@@ -36,42 +36,43 @@ router.post("/resume/apply", authMiddlware, async (req, res, next) => {
 });
 
 //회원의 이력서 상세조회
-router.get("/resume/:resumeid", authMiddlware, async (req, res, next) => {
-  const resumeid = parseInt(req.params.resumeid, 10); // 문자열을 정수로 변환
+router.get("/resume", authMiddlware, async (req, res, next) => {
   const userid = await req.user.userid;
 
-  //이력서가 존재하지 않을 경우
-
-  console.log("resumeid:", resumeid);
-
-  const resume = await prisma.resume.findFirst({
+  //조건에 맞는 이력서 추적
+  const resume = await prisma.resume.findMany({
     where: {
-      resumeid: resumeid,
       Userid: +userid,
     },
     select: {
-      name: true,
-      age: true,
-      content: true,
-      createdAt: true,
-      updatedAt: true,
+        resumeid:true,
+        name: true,
+        age: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
     },
   });
+
+  //이력서가 존재하지 않을 경우
   if (!resume)
     return res
       .status(404)
       .json({ ErrorMessage: "존재하지 않거나 권한이 없습니다!" });
-  console.log(resume);
   return res.status(200).json({ resume });
 });
 
 //회원의 이력서 수정
 router.put("/resume/:resumeid", authMiddlware, async (req, res, next) => {
   try {
+    //수정할 이력서를 parmas에서 가져옴
     const resumeid = req.params.resumeid;
+
+    //authMiddlware에서 만들어진 req.user를 가져옴
     const userid = req.user.userid;
     const { content } = req.body;
 
+    //회원 본인의 이력서일 경우에만 가져옴
     const resume = await prisma.resume.findFirst({
       where: {
         resumeid: +resumeid,
@@ -83,6 +84,7 @@ router.put("/resume/:resumeid", authMiddlware, async (req, res, next) => {
         updatedAt: true,
       },
     });
+    //조건에 맞는 이력서가 없을 경우
     if (!resume)
       return res
         .status(401)
@@ -90,6 +92,7 @@ router.put("/resume/:resumeid", authMiddlware, async (req, res, next) => {
           ErrorMessage: "해당하는 이력서가 존재하지 않거나 권한이 없습니다!",
         });
 
+    //수정할 내용으로 업데이트
     const modify = await prisma.resume.update({
       where: {
         resumeid: +resumeid,
@@ -113,7 +116,7 @@ router.get("/manager/resume/:resumeid", authMiddlware, async(req,res,next) => {
     if (!req.manager) {
         const error= new Error(`사이트에 접근할 권한이 없습니다!`);
         error.name='ForbiddenError';
-        next(error);
+        return next(error);
     }
 
     const user = req.user;
@@ -124,12 +127,12 @@ router.get("/manager/resume/:resumeid", authMiddlware, async(req,res,next) => {
 });
 
 //관리자의 이력서 수정 router
-router.patch("/manager/resume/:resumeid", authMiddlware, (req,res,next) => {
+router.put("/manager/resume/:resumeid", authMiddlware, (req,res,next) => {
     //사용자가 매니저인지 확인
     if (!req.manager) {
         const error= new Error(`사이트에 접근할 권한이 없습니다!`);
         error.name='ForbiddenError';
-        next(error);
+        return next(error);
     }
     const user = req.user;
 
