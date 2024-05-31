@@ -17,7 +17,7 @@ const RefreshTokenKey = "second_token";
 
 //회원 가입 router====================
 router.post("/set-in", async (req, res, next) => {
-  const { email, password, name, age, gender, profilimage } = req.body;
+  const { email, password, name, age, gender, profilimage,role} = req.body;
   if (!email || !password || !name || !gender)
     return res.status(400).json({
       Message: "필수적인 정보를 입력해주세요!",
@@ -44,6 +44,7 @@ router.post("/set-in", async (req, res, next) => {
     data: {
       email,
       password: hashedpassword,
+      role,
     },
   });
 
@@ -56,7 +57,10 @@ router.post("/set-in", async (req, res, next) => {
       profilimage,
     },
   });
-
+  if (role==="MANGER") {
+    console.log(`관리자 계정(id:${user.userid})이 생성되었습니다`);
+    return res.status(200).json({ Message: "성공적으로 관리자 계정이 생성되었습니다!" });
+  }
   return res.status(200).json({ Message: "성공적으로 계정이 생성되었습니다!" });
 });
 
@@ -92,10 +96,15 @@ router.get("/log-in", async (req, res, next) => {
   );
 
   res.cookie("authorization", `Bearer ${token}`,{expiresIn:'15m'});
+  
+  //관리자 검증 확인
+  if (user.role==="MANGER") {
+    console.log(`관리자 계정(id:${user.userid})이 로그인 하였습니다.`);
+    return res.status(200).json({ Message: "관리자 계정으로 성공적으로 로그인 되었습니다!" });
+  }
 
   return res.status(200).json({ Message: "성공적으로 로그인 되었습니다!" });
 
-  
 });
 
 //계정 정보 조회 router ====================
@@ -105,6 +114,13 @@ router.get("/myinfo",authMiddlware,async(req, res, next) => {
     const userinfo=await prisma.userinfos.findFirst({
         where: {
             Userid:+userid,
+        },
+        select: {
+          name:true,
+          age:true,
+          gender:true,
+          createdAt:true,
+          updatedAt:true
         }
     });
 

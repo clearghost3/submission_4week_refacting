@@ -8,14 +8,15 @@ export default async function (req,res,next) {
 
         const [tokenType,token]=authorization.split(" ");
 
-        const decodedToken=jwt.verify(token,'first_token');
+        //토큰타입과 토큰 확인
 
-        if(tokenType==="manager") {
-            req.manager=1;
-            console.log(`${decodedToken.userid}번 계정이 관리자로 로그인 했습니다`);
-        }
-        else if (tokenType!=='Bearer') throw new Error("토큰 타입이 일치하지 않습니다");
+        const decodedToken=jwt.verify(token,'first_token');
         
+
+        if (tokenType!=='Bearer') {
+            console.log("tokenType:",tokenType);
+            throw new Error(`토큰 타입이 일치하지 않습니다`);
+        }
         
         
         const userid=decodedToken['userid'];
@@ -30,7 +31,15 @@ export default async function (req,res,next) {
             throw new Error("존재하지 않는 사용자");
         }
 
+        //관리자 권한이 있다면 인가 과정에서 관리자 권한을 부여
+        if (user.role==="MANGER") {
+            req.manager=1;
+        }
+
         req.user=user;
+
+        req.test=user;
+
         next();
     }
     catch(error) {

@@ -1,7 +1,8 @@
 export default function (err,req,res,next) {
     console.error(err);
     switch (err.name) {
-
+        case 'ForbiddenError':
+            return res.status(403).json({ErrorMessage:'사이트에 접근할 권한이 없습니다!'});
     }
 
 
