@@ -32,12 +32,13 @@ model Users {
   
   email       String          @unique @map("email")
   password    String          @map("password")
-  role        Roles?          @default(GENERAL) @map("Role")
+  role        Roles?          @default(GENERAL) @map("role")
   createdAt   DateTime        @default(now()) @map("createdAt")
   updatedAt   DateTime        @updatedAt @map("updatedAt")
 
   Userinfos  Userinfos?
   Resume     Resume[]
+  UserHistories UserHistories[]
 
   @@map("Users")
 }
@@ -54,11 +55,25 @@ model Userinfos {
   createdAt     DateTime      @default(now()) @map("createdAt")
   updatedAt     DateTime      @updatedAt @map("updatedAt")
 
-  user          Users   @relation(fields:[Userid],references:[userid],onDelete:Cascade)
+  User          Users   @relation(fields:[Userid],references:[userid],onDelete:Cascade)
   
 
   @@map("Userinfos")
 
+}
+
+model UserHistories {
+  userHistorieId  String    @id @default(uuid())  
+  UserId          Int       @unique  @map("Userid")
+  changeField    String    @map("chanageField")
+  oldValue        String?   @map("oldValue")
+  newValue        String    @map("newValue")
+
+  changedAt       DateTime  @default(now())  @map("changedAt")
+
+  user            Users      @relation(fields:[UserId],references:[userid],onDelete:Cascade)
+
+  @@map("UserHistories")
 }
 
 model Resume {

@@ -55,10 +55,12 @@ router.get("/resume", authMiddlware, async (req, res, next) => {
   });
 
   //이력서가 존재하지 않을 경우
-  if (!resume)
+  console.log("resume:",resume);
+  if (!resume) {
     return res
       .status(404)
-      .json({ ErrorMessage: "존재하지 않거나 권한이 없습니다!" });
+      .json({ ErrorMessage: "존재하지 않거나 권한이 없습니다!" })};
+
   return res.status(200).json({ resume });
 });
 

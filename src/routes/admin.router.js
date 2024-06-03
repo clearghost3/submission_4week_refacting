@@ -7,7 +7,6 @@ import authMiddlware from "../middlewares/auth.middlware.js";
 
 const router=express.Router();
 
-//관리자 패널=======================================
 
 //관리자_ 전체 이력서 상세조회 router
 router.get("/manager/resume/:resumeid", authMiddlware, async(req,res,next) => {

@@ -6,7 +6,7 @@ import authMiddlware from "../middlewares/auth.middlware.js";
 
 import jwt from "jsonwebtoken";
 import bcrypt, { compareSync } from "bcrypt";
-
+import { Prisma } from "@prisma/client";
 
 const router = express.Router();
 
@@ -17,12 +17,11 @@ const RefreshTokenKey = "second_token";
 
 //회원 가입 router====================
 router.post("/set-in", async (req, res, next) => {
-  const { email, password, name, age, gender, profilimage,role} = req.body;
+  const { email, password, name, age, gender, profilimage, role } = req.body;
   if (!email || !password || !name || !gender)
     return res.status(400).json({
       Message: "필수적인 정보를 입력해주세요!",
     });
-
 
   //같은 이메일이 있는지 확인
   const isExistemail = await prisma.users.findFirst({
@@ -40,26 +39,39 @@ router.post("/set-in", async (req, res, next) => {
   //비밀번호 암호화
   const hashedpassword = await bcrypt.hash(password, 10); //비밀번호 암호화, 10번 복호화 과정을 거침    //비동기이기에 자기자신 참조 불가
 
-  const user = await prisma.users.create({
-    data: {
-      email,
-      password: hashedpassword,
-      role,
-    },
-  });
+  //트랜잭션 만듦 //격리수준:commit된 이후에 읽기 가능
+  const [user, info] = await prisma.$transaction(
+    async (tx) => {
+      const user = await tx.users.create({
+        data: {
+          email,
+          password: hashedpassword,
+          role,
+        },
+      });
 
-  const info = await prisma.userinfos.create({
-    data: {
-      Userid: user.userid,
-      name:name,
-      age: +age,
-      gender,
-      profilimage,
+      const info = await tx.userinfos.create({
+        data: {
+          Userid: user.userid,
+          name: name,
+          age: +age,
+          gender,
+          profilimage,
+        },
+      });
+
+      return [user, info];
     },
-  });
-  if (role==="MANGER") {
+    {
+      isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
+    }
+  );
+
+  if (role === "MANGER") {
     console.log(`관리자 계정(id:${user.userid})이 생성되었습니다`);
-    return res.status(200).json({ Message: "성공적으로 관리자 계정이 생성되었습니다!" });
+    return res
+      .status(200)
+      .json({ Message: "성공적으로 관리자 계정이 생성되었습니다!" });
   }
   return res.status(200).json({ Message: "성공적으로 계정이 생성되었습니다!" });
 });
@@ -95,43 +107,45 @@ router.get("/log-in", async (req, res, next) => {
     { expiresIn: "15m" }
   );
 
-  res.cookie("authorization", `Bearer ${token}`,{expiresIn:'15m'});
-  
+  res.cookie("authorization", `Bearer ${token}`, { expiresIn: "15m" });
+
   //관리자 검증 확인
-  if (user.role==="MANGER") {
+  if (user.role === "MANGER") {
     console.log(`관리자 계정(id:${user.userid})이 로그인 하였습니다.`);
-    return res.status(200).json({ Message: "관리자 계정으로 성공적으로 로그인 되었습니다!" });
+    return res
+      .status(200)
+      .json({ Message: "관리자 계정으로 성공적으로 로그인 되었습니다!" });
   }
 
   return res.status(200).json({ Message: "성공적으로 로그인 되었습니다!" });
-
 });
 
-//계정 정보 조회 router ====================
-router.get("/myinfo",authMiddlware,async(req, res, next) => {
-    const userid=req.user.userid;   //authMiddlware에서 req에 전달한 userid를 사용함
+//본인의 계정 정보 조회 router ====================
+router.get("/myinfo", authMiddlware, async (req, res, next) => {
+  const userid = req.user.userid; //authMiddlware에서 req에 전달한 userid를 사용함
 
-    const userinfo=await prisma.userinfos.findFirst({
-        where: {
-            Userid:+userid,
-        },
-        select: {
-          name:true,
-          age:true,
-          gender:true,
-          createdAt:true,
-          updatedAt:true
-        }
-    });
+  const userinfo = await prisma.userinfos.findFirst({
+    where: {
+      Userid: +userid,
+    },
+    select: {
+      name: true,
+      age: true,
+      gender: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
 
-
-    return res.status(200).json({userinfo});
+  return res.status(200).json({ userinfo });
 });
+
+
 
 //로그아웃 router ====================
-router.get('/logout',(req,res)=>{
-  res.clearCookie('authorization');
-  return res.status(200).json({Message:"성공적으로 로그아웃 되었습니다!"});
+router.get("/logout", (req, res) => {
+  res.clearCookie("authorization");
+  return res.status(200).json({ Message: "성공적으로 로그아웃 되었습니다!" });
 });
 
 export default router;

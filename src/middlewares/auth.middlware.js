@@ -36,9 +36,8 @@ export default async function (req,res,next) {
             req.manager=1;
         }
 
+        //user의 정보를 req에 전달
         req.user=user;
-
-        req.test=user;
 
         next();
     }
