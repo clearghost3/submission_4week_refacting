@@ -3,8 +3,8 @@ import cookieParser from 'cookie-parser';
 
 //router
 import accountRouter from "./routes/account.router.js";
-import resumeRouter from "./routes/resume.router.js";
-import adminRouter from "./routes/admin.router.js";
+// import resumeRouter from "./routes/resume.router.js";
+// import adminRouter from "./routes/admin.router.js";
 
 //middlewares
 import authMiddlware from './middlewares/auth.middlware.js';
@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
 
-app.use("/api",[accountRouter,resumeRouter,adminRouter]);
+// app.use("/api",[accountRouter,resumeRouter,adminRouter]);
 
 const PORT=3019;
 

@@ -28,7 +28,7 @@ enum Roles {
 }
 
 model Users {
-  userid      Int            @id @default(autoincrement()) @map("userid")
+  userId      Int            @id @default(autoincrement()) @map("userId")
   
   email       String          @unique @map("email")
   password    String          @map("password")
@@ -37,16 +37,16 @@ model Users {
   updatedAt   DateTime        @updatedAt @map("updatedAt")
 
   Userinfos  Userinfos?
-  Resume     Resume[]
+  Resumes    Resumes[]
   UserHistories UserHistories[]
 
   @@map("Users")
 }
 
 model Userinfos {
-  userinfoid   Int           @id @default(autoincrement()) @map("userinfoid")
+  userinfoId   Int           @id @default(autoincrement()) @map("userinfoId")
 
-  Userid        Int           @unique @map("Userid")
+  UserId        Int           @unique @map("UserId")
 
   name          String        @map("name")
   age           Int           @map("age")
@@ -55,7 +55,7 @@ model Userinfos {
   createdAt     DateTime      @default(now()) @map("createdAt")
   updatedAt     DateTime      @updatedAt @map("updatedAt")
 
-  User          Users   @relation(fields:[Userid],references:[userid],onDelete:Cascade)
+  User          Users   @relation(fields:[UserId],references:[userId],onDelete:Cascade)
   
 
   @@map("Userinfos")
@@ -64,32 +64,32 @@ model Userinfos {
 
 model UserHistories {
   userHistorieId  String    @id @default(uuid())  
-  UserId          Int       @unique  @map("Userid")
-  changeField    String    @map("chanageField")
+  UserId          Int       @unique  @map("UserId")
+  changeField    String     @map("chanageField")
   oldValue        String?   @map("oldValue")
   newValue        String    @map("newValue")
 
   changedAt       DateTime  @default(now())  @map("changedAt")
 
-  user            Users      @relation(fields:[UserId],references:[userid],onDelete:Cascade)
+  user            Users      @relation(fields:[UserId],references:[userId],onDelete:Cascade)
 
   @@map("UserHistories")
 }
 
-model Resume {
-  resumeid          Int           @id @default(autoincrement()) @map("resumeid")
+model Resumes {
+  resumeId          Int           @id @default(autoincrement()) @map("resumeId")
 
-  Userid            Int           @map("Userid")
+  UserId            Int           @map("UserId")
   name              String        @map("name")
   age               Int           @map("age")
   content           String        @map("content")
   status            Resumestatus  @default(APPLY) @map("status")
   decision_reason   String?       @map("decision_reason")
-  manager           String?       @map("manager")
+  role              String        @map("role")
   createdAt         DateTime      @default(now()) @map("createdAt")
   updatedAt         DateTime      @updatedAt @map("updatedAt")
 
-  user          Users     @relation(fields:[Userid],references:[userid],onDelete:Cascade)
+  user          Users     @relation(fields:[UserId],references:[userId],onDelete:Cascade)
 
-  @@map("Resume")
+  @@map("Resumes")
 }
