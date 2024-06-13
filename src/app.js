@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
 
-// app.use("/api",[accountRouter,resumeRouter,adminRouter]);
+app.use("/api",[accountRouter]);
 
 const PORT=3019;
 

@@ -7,22 +7,32 @@ import authMiddlware from "../middlewares/auth.middlware.js";
 import jwt from "jsonwebtoken";
 import bcrypt, { compareSync } from "bcrypt";
 
-//import layer
-import { UsersRepository } from "../Layer/DataAccess/Users.repository.js";
-import { UsersService } from "../Layer/Services/Users.service.js";
-import { UsersController } from "../Layer/Controller/Users.controller.js";
+//import layer_Repository
+import { UsersRepository } from "../Layer/Repository/Users.repository.js";
+
+//import layer_Service
+import { AccountService } from "../Layer/Services/Account.service.js";
+
+//import Layer_Controller
+import { AccountController } from "../Layer/Controller/Account.controller.js";
+
+
+
 
 const router= express.Router();
 
-const usersRepository=new UsersRepository(prisma);
-const usersService=new UsersService(usersRepository);
-const usersController=new UsersController(usersService);
+
+const srepository=new UsersRepository(prisma);
+const accountservice=new AccountService(srepository);
+const accountcontroller=new AccountController(accountservice);
+
 
 console.log("<===Applyed account.Router===>");
 
-router.post("/", async (req, res, next) => {
+router.post('/set-in', accountcontroller.createUser);
 
-});
+router.post('/set-ino', accountcontroller.createUserInfo);
+
 
 
 // const router = express.Router();
