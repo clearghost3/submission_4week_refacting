@@ -2,8 +2,8 @@ export class UsersRepository{
     constructor (prisma) {
         this.prisma=prisma;
     }
-    findemail=async(email)=>{
-        const user=await this.prisma.user.findFirst({
+    findEmail=async(email)=>{
+        const user=await this.prisma.users.findFirst({
             where: {
                 email:email
             }
@@ -17,6 +17,7 @@ export class UsersRepository{
                 userId:+userId
             }
         })
+        return user;
     };
 
 
@@ -31,11 +32,7 @@ export class UsersRepository{
             }
         });
 
-        return {
-            email:createUser.email,
-            password:createUser.password,
-            role:createUser.role,
-        }
+        return createUser;
     };
 
     createUserInfo=async(UserId,name,age,gender) =>{
@@ -47,6 +44,7 @@ export class UsersRepository{
                 gender:gender,
             }
         });
+        return createUserInfo;
     };
     
 }

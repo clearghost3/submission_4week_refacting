@@ -29,9 +29,8 @@ const accountcontroller=new AccountController(accountservice);
 
 console.log("<===Applyed account.Router===>");
 
-router.post('/set-in', accountcontroller.createUser);
+router.post('/set-in', accountcontroller.createAccount);
 
-router.post('/set-ino', accountcontroller.createUserInfo);
 
 
 

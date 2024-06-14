@@ -3,6 +3,11 @@ export class AccountService {
         this.UsersRepository=UsersRepository;
     }
 
+    findEmail=async(email)=>{
+        const user=this.UsersRepository.findEmail(email);
+        return user;
+    }
+
     findUser=async(userId)=> {
         const user=await this.UsersRepository.findUser(userId);
         return user;
@@ -27,7 +32,7 @@ export class AccountService {
         const createduser=await this.createUser(email,password,role);
         const createduserinfo=await this.createUserInfo(createduser.userId,name,age,gender,profilimage);
 
-        return {createduser,createduserinfo};
+        return {createduser};
     }
 
 
