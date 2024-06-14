@@ -22,16 +22,18 @@ import { AccountController } from "../Layer/Controller/Account.controller.js";
 const router= express.Router();
 
 
-const srepository=new UsersRepository(prisma);
-const accountservice=new AccountService(srepository);
+const repository=new UsersRepository(prisma);
+const accountservice=new AccountService(repository);
 const accountcontroller=new AccountController(accountservice);
 
 
 console.log("<===Applyed account.Router===>");
 
+//회원 가입 API
 router.post('/set-in', accountcontroller.createAccount);
 
-
+//로그인 API
+router.get('/log-in',accountcontroller.login);
 
 
 // const router = express.Router();

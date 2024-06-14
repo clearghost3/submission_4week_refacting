@@ -1,39 +1,53 @@
 export class AccountService {
-    constructor (UsersRepository) {
-        this.UsersRepository=UsersRepository;
+    constructor(UsersRepository) {
+        this.UsersRepository = UsersRepository;
     }
 
-    findEmail=async(email)=>{
-        const user=this.UsersRepository.findEmail(email);
+    //이메일로 유저를 찾는 함수
+    findEmail = async (email) => {
+        const user = await this.UsersRepository.findEmail(email);
         return user;
     }
 
-    findUser=async(userId)=> {
-        const user=await this.UsersRepository.findUser(userId);
+    //userid로 유저를 찾는 함수
+    findUser = async (userId) => {
+        const user = await this.UsersRepository.findUser(userId);
         return user;
     }
 
-    findAllUser=async()=> {
-        const users=await this.UsersRepository.findAllUser();
+    //모든 유저를 반환하는 함수
+    findAllUser = async () => {
+        const users = await this.UsersRepository.findAllUser();
         return users;
     }
 
-    createUser=async(email,password,role)=>{
-        const createdUser=await this.UsersRepository.createUser(email,password,role);
+    //유저를 만드는 함수
+    createUser = async (email, password, role) => {
+        const createdUser = await this.UsersRepository.createUser(email, password, role);
         return createdUser;
     }
 
-    createUserInfo=async(userId,name,age,gender)=>{
-        const createuserinfo=await this.UsersRepository.createUserInfo(userId,name,age,gender);
+    //유저정보를 만드는 함수
+    createUserInfo = async (userId, name, age, gender) => {
+        const createuserinfo = await this.UsersRepository.createUserInfo(userId, name, age, gender);
         return createuserinfo;
     }
 
-    createAccount=async(email,password,role,name,age,gender,profilimage) =>{
-        const createduser=await this.createUser(email,password,role);
-        const createduserinfo=await this.createUserInfo(createduser.userId,name,age,gender,profilimage);
+    //계정을 만드는 함수
+    createAccount = async (email, password, role, name, age, gender, profilimage) => {
+        const createduser = await this.createUser(email, password, role);
+        const createduserinfo = await this.createUserInfo(createduser.userId, name, age, gender, profilimage);
 
-        return {createduser};
+        return { createduser };
     }
 
+    //로그인 함수
+    login = async (email, password) => {
+        const user = await this.findEmail(email);
 
+        if (!user) return -1;
+        if (user.password!==password) return 0;
+        
+        return user.userId;
+    }
 }
