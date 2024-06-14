@@ -1,10 +1,9 @@
 export class AccountController {
-    constructor (AccountService) {
+    constructor (AccountService,bcrypt,jwt) {
         this.AccountService=AccountService;
+        this.bcrypt=bcrypt;
+        this.jwt=jwt;
     }
-    myAccountCheck=async(req,res,next)=>{
-
-    };
 
     login=async(req,res,next)=>{
         const {email,password}=req.body;
@@ -14,7 +13,25 @@ export class AccountController {
         if (userId===-1) return res.status(404).json({ErrorMessage:"존재하지 않는 계정입니다"});
         if (userId===0) return res.status(400).json({ErrorMessage:"비밀번호가 틀립니다!"});
 
-        res.cookie("Autorization",userId);
+        const Token=this.jwt.sign(
+            {
+                userId:userId,
+            },
+            process.env.SECRET_TOKEN_KEY
+        )
+
+//   const token = jwt.sign(
+//     {
+//       userid: user.userid,
+//     },
+//     AccessTokenKey,
+//     { expiresIn: "15m" }
+//   );
+
+        //인증에 성공할 시 쿠키를 보관
+        res.cookie("Autorization",Token);
+
+
 
         return res.status(200).json({Message:"성공적으로 로그인 되었습니다"});
     }

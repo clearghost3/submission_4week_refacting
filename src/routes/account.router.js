@@ -24,7 +24,7 @@ const router= express.Router();
 
 const repository=new UsersRepository(prisma);
 const accountservice=new AccountService(repository);
-const accountcontroller=new AccountController(accountservice);
+const accountcontroller=new AccountController(accountservice,bcrypt,jwt);
 
 
 console.log("<===Applyed account.Router===>");
