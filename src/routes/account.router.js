@@ -23,7 +23,7 @@ const router= express.Router();
 
 
 const repository=new UsersRepository(prisma);
-const accountservice=new AccountService(repository,bcrypt);
+const accountservice=new AccountService(repository,bcrypt,jwt);
 const accountcontroller=new AccountController(accountservice,bcrypt,jwt);
 
 

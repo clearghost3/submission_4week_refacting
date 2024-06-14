@@ -1,7 +1,8 @@
 export class AccountService {
-    constructor(UsersRepository,bcrypt) {
+    constructor(UsersRepository,bcrypt,jwt) {
         this.UsersRepository = UsersRepository;
         this.bcrypt=bcrypt;
+        this.jwt=jwt;
     }
 
     //이메일로 유저를 찾는 함수
@@ -45,16 +46,25 @@ export class AccountService {
     //로그인 함수
     login = async (email, password) => {
         const user = await this.findEmail(email);
-        
 
         //이메일로 찾은 유저 데이터
         if (!user) return -1;
 
-        console.log(password)
-        console.log(user.password);
-
         if (!(await this.bcrypt.compare(password,user.password))) return 0;
         
         return user.userId;
+    }
+
+    //데이터 토큰화
+    tokenization=async (data)=>{
+        const token= this.jwt.sign(data,process.env.SECRET_TOKEN_KEY,{expiresIn: "15m"});
+        return token;
+    }
+
+    //데이터 암호화
+    hashdata=async (data)=> {
+        const saltround=10;
+        const hasheddata = await this.bcrypt.hash(data,saltround);
+        return hasheddata;
     }
 }
