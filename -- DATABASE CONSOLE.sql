@@ -14,5 +14,5 @@
 
 
 
--- SELECT * FROM Users;
+SELECT * FROM Users;
 -- SELECT * FROM Userinfos;

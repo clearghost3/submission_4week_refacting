@@ -1,6 +1,7 @@
 export class AccountService {
-    constructor(UsersRepository) {
+    constructor(UsersRepository,bcrypt) {
         this.UsersRepository = UsersRepository;
+        this.bcrypt=bcrypt;
     }
 
     //이메일로 유저를 찾는 함수
@@ -44,9 +45,15 @@ export class AccountService {
     //로그인 함수
     login = async (email, password) => {
         const user = await this.findEmail(email);
+        
 
+        //이메일로 찾은 유저 데이터
         if (!user) return -1;
-        if (user.password!==password) return 0;
+
+        console.log(password)
+        console.log(user.password);
+
+        if (!(await this.bcrypt.compare(password,user.password))) return 0;
         
         return user.userId;
     }

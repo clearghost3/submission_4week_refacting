@@ -17,8 +17,8 @@ export class AccountController {
             {
                 userId:userId,
             },
-            process.env.SECRET_TOKEN_KEY
-        )
+            process.env.SECRET_TOKEN_KEY,{expiresIn: "15m"}
+        );
 
 //   const token = jwt.sign(
 //     {
@@ -51,7 +51,11 @@ export class AccountController {
 
             if (is_email) return res.status(400).json({ErrorMessage:"이미 존재하는 이메일입니다"});
 
-            await this.AccountService.createAccount(email,password,role,name,age,gender,profilimage);
+            //비밀번호를 암호화합니다.
+            const saltround=10;
+            const hashedpassword=await this.bcrypt.hash(password,saltround);
+
+            await this.AccountService.createAccount(email,hashedpassword,role,name,age,gender,profilimage);
             return res.status(201).json({Message:"계정이 생성되었습니다!"});
         }
         catch(err) {
