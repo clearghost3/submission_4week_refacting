@@ -9,24 +9,26 @@ export class AccountController {
         try {
         const {email,password}=req.body;
 
-        //서비스 계층의 로그인 함수를 실행
+        //서비스 계층의 로그인 함수를 실행,성공할 경우: 토큰을 반환
         const user=await this.AccountService.login(email,password);
 
-        //계정을 만든 결과값에 오류가 있을시 오류메세지가 존재, 반환된 상태값과 오류메세지를 출력
+        //계정을 만든 결과값에 오류가 있을시 오류메세지가 존재, 반환된 상태값과 오류메세지를 출력===모든 실패할 경우
         if (user.ErrorMessage) {
             return res.status(user.status).json({ErrorMessage:user.ErrorMessage});
         }
 
-        //성공 경우
+        //성공할 경우
+        const token=user;
+
+        //토큰을 쿠키에 저장
+        const expirationtime=1000*60*15;
+        res.cookie("Authorization",token,{maxAge:expirationtime});
+
         return res.status(200).json({Message:"성공적으로 로그인 되었습니다"});
         }
         catch(err) {
             next(err);
         }
-    }
-
-    logout=async(req,res,next)=>{
-
     }
     
     createAccount=async(req,res,next)=>{
@@ -47,5 +49,27 @@ export class AccountController {
         catch(err) {
             next(err);
         }
+    }
+
+    myinfo=async(req,res,next)=>{
+        try {
+            const userId=req.user.userId;
+            
+
+            return res.status(200).json({Message:"코드 검증 완료"});
+        }
+        catch(err) {
+            next(err);
+        }
+        
+        
+    }
+
+
+
+
+
+    logout=async(req,res,next)=>{
+        res.clearCookie("Authorization");
     }
 }

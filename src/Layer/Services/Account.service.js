@@ -7,7 +7,8 @@ export class AccountService {
 
     //데이터 토큰화
     tokenization = async (data) => {
-        const token = this.jwt.sign(data, process.env.SECRET_TOKEN_KEY, { expiresIn: "15m" });
+        const memory = this.jwt.sign(data, process.env.SECRET_TOKEN_KEY, { expiresIn: "15m" });
+        const token=`Bearer ${memory}`;
         return token;
     }
 
@@ -24,7 +25,7 @@ export class AccountService {
         return user;
     }
 
-    //userid로 유저를 찾는 함수
+    //userId로 유저를 찾는 함수
     findUser = async (userId) => {
         const user = await this.UsersRepository.findUser(userId);
         return user;
@@ -91,6 +92,15 @@ export class AccountService {
             return error;
         }
 
-        return user.userId;
+        //성공할 경우 토큰을 만들고 반환
+        const token=await (this.tokenization({userId:user.userId}));
+        
+        return token;
+    }
+
+    //본인 계정의 정보를 확인하는 함수
+    myinfo=async(userId)=>{
+        const user=this.findUser(userId);
+        
     }
 }
