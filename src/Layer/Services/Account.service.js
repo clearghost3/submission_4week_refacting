@@ -1,8 +1,21 @@
 export class AccountService {
-    constructor(UsersRepository,bcrypt,jwt) {
+    constructor(UsersRepository, bcrypt, jwt) {
         this.UsersRepository = UsersRepository;
-        this.bcrypt=bcrypt;
-        this.jwt=jwt;
+        this.bcrypt = bcrypt;
+        this.jwt = jwt;
+    }
+
+    //데이터 토큰화
+    tokenization = async (data) => {
+        const token = this.jwt.sign(data, process.env.SECRET_TOKEN_KEY, { expiresIn: "15m" });
+        return token;
+    }
+
+    //데이터 암호화
+    hashdata = async (data) => {
+        const saltround = 10;
+        const hasheddata = await this.bcrypt.hash(data, saltround);
+        return hasheddata;
     }
 
     //이메일로 유저를 찾는 함수
@@ -37,7 +50,25 @@ export class AccountService {
 
     //계정을 만드는 함수
     createAccount = async (email, password, role, name, age, gender, profilimage) => {
-        const createduser = await this.createUser(email, password, role);
+
+        //필요한 입력을 전부 받았는지 확인
+        if (!email||!password||!name||!age||!gender) {
+            const error={status:400,ErrorMessage:"필요한 정보를 전부 입력해주세요!"};
+            return error;
+        }
+
+        //해당 계정이 이미 존재하는지 확인
+        if (await this.findEmail(email)) {
+            const error={status:401,ErrorMessage:"이미 존재하는 계정입니다."};
+            return error;
+        }
+
+        //비밀번호 암호화
+        const hashedpassword = await this.hashdata(password);
+
+        //유저 기록
+        const createduser = await this.createUser(email, hashedpassword, role);
+        //유저 정보기록
         const createduserinfo = await this.createUserInfo(createduser.userId, name, age, gender, profilimage);
 
         return { createduser };
@@ -45,26 +76,21 @@ export class AccountService {
 
     //로그인 함수
     login = async (email, password) => {
-        const user = await this.findEmail(email);
 
-        //이메일로 찾은 유저 데이터
-        if (!user) return -1;
+        const user=await this.findEmail(email)
 
-        if (!(await this.bcrypt.compare(password,user.password))) return 0;
+        //해당 계정이 존재하는지 검증
+        if (!user) {
+            const error={status:404,ErrorMessage:"해당 계정이 존재하지 않습니다!"};
+            return error;
+        }
         
+        //해당 계정의 비밀번호가 일치하는지 검증
+        if (!(await this.bcrypt.compare(password, user.password))) {
+            const error={status:403,ErrorMessage:"해당 계정의 비밀번호와 일치하지 않습니다!"};
+            return error;
+        }
+
         return user.userId;
-    }
-
-    //데이터 토큰화
-    tokenization=async (data)=>{
-        const token= this.jwt.sign(data,process.env.SECRET_TOKEN_KEY,{expiresIn: "15m"});
-        return token;
-    }
-
-    //데이터 암호화
-    hashdata=async (data)=> {
-        const saltround=10;
-        const hasheddata = await this.bcrypt.hash(data,saltround);
-        return hasheddata;
     }
 }
